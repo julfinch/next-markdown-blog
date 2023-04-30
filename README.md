@@ -184,3 +184,99 @@
         )
         }
     ```
+
+## POSTS
+1. Under the `public folder`, create a new folder named `images` and another folder inside it named `posts` where we put the images that we will use for the blog posts.
+1. Under the root folder, create a new folder named `posts`, this is where we will put our `.MD` files for the blog posts. Create a file inside it named `test.md` to initiate the connection.
+    ```shell
+        ---
+        title: 'Test Post'
+        date: 'May 1, 2023'
+        excerpt: 'This is the excerpt'
+        cover_image: '/images/posts/img1.jpg'
+        ---
+        ## Heading Two
+
+        * Item 1
+        * Item 2
+    ``` 
+1. Right click inside the editor and click `Markdown Preview Enhanced: Open Preview to the Right` from our extension to show a preview of our MD file.
+1. Open `index.js` and initiate `getStaticProps` below it. In the browser's console tab, we should be able to see `The Posts` from the terminal.
+    ```shell
+        import Head from 'next/head'
+
+        export default function Home({posts}) {
+        console.log(posts)
+        return (
+            <>
+            <Head>
+                <title>Finch Dev Blog</title>
+            </Head>
+            <h2>Hello</h2>
+            </>
+        )
+        }
+
+        export async function getStaticProps() {
+        return {
+            props: {
+            posts: 'The Posts'
+            }
+        }
+        }
+    ```
+1. We will use `fs` to be able to read the files inside the `posts` folder. Also import `path` along with it.
+    ```shell
+        import Head from 'next/head'
+        import fs from 'fs'
+        import path from 'path'
+
+        export default function Home({posts}) {
+        console.log(posts)
+        return (
+            <>
+            <Head>
+                <title>Finch Dev Blog</title>
+            </Head>
+            <h2>Hello</h2>
+            </>
+        )
+        }
+
+        export async function getStaticProps() {
+        const files = fs.readdirSync(path.join('posts'))
+        console.log(files)
+        return {
+            props: {
+            posts: 'The Posts'
+            }
+        }
+        }
+    ```
+1. We should be able to see `[ 'test.md' ]` from our VScode terminal.
+1. To get the slug and frontmatter from our posts, we need to map through our files. We should see `[ { slug: 'test' } ]` from our VScode terminal.
+    ```shell
+        export async function getStaticProps() {
+        #Get files from the posts directory
+        const files = fs.readdirSync(path.join('posts'))
+        
+        # Get slug and frontmatter from posts
+        const posts = files.map((filename) => {
+            # Create slug
+            # We will replace the .md tag with nothing and return the slug
+            # We should get an array with the objects with slug and filename
+            const slug = filename.replace(".md", "")
+
+            return {
+            slug,
+            }
+        })
+
+        console.log(posts)
+        return {
+            props: {
+            posts: 'The Posts'
+            }
+        }
+        }
+    ```
