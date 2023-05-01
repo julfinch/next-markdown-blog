@@ -1,7 +1,10 @@
 import Head from 'next/head'
 import fs from 'fs'
 import path from 'path'
+import matter from 'gray-matter'
 import { Inter } from 'next/font/google'
+import Post from '../../components/Post'
+import { sortByDate } from '../../utils'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,7 +18,12 @@ export default function Home({posts}) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h2>Hello</h2>
+
+      <div className="posts">
+        {posts.map((post, index) => (
+          <Post post={post} key={index}/>
+        ))}
+      </div>
     </>
   )
 }
@@ -31,15 +39,25 @@ export async function getStaticProps() {
     //We should get an array with the objects with slug and filename
     const slug = filename.replace(".md", "")
 
+    // Get frontmatter
+    const markdownWithMeta = fs.readFileSync(
+      path.join('posts', filename), 
+      'utf-8'
+    )
+
+    // To parse markdownMeta, we use gray-matter and wrap it
+    // Destructure to extract the data and rename it as frontmatter
+    // In addition to the slug, we will also return frontmatter
+    const { data: frontmatter } = matter(markdownWithMeta)
     return {
       slug,
+      frontmatter
     }
   })
 
-  console.log(posts)
   return {
     props: {
-      posts: 'The Posts'
+      posts: posts.sort(sortByDate)
     }
   }
 }
